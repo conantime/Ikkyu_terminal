@@ -82,6 +82,6 @@ pub async fn send_message(content: String) -> Result<(), Box<dyn std::error::Err
     Ok(())
 }
 
-fn handle_response(&message: String) -> Result<(), String> {
-
+fn handle_response(message: String) -> Result<(), String> {
+    let m = &message;
 }
