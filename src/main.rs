@@ -1,4 +1,4 @@
-use clap::{arg, Command};
+use clap::{arg, Command, Result};
 use colored::*;
 use rust_embed::RustEmbed;
 use std::{
@@ -9,14 +9,24 @@ use std::{
 };
 
 mod tools;
+mod ai_ask;
+use ai_ask::ai::send_message;
+
 use tools::file_tool;
+use crate::ai_ask::ai;
+
+use tokio;
+use std::thread;
+
 #[derive(RustEmbed)]
 #[folder = "godotTemplate"]
 struct Asset;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let comm = Command::new("Git + Godot Tools")
         .about("Git提交快捷命令行+ Godot游戏引擎之rust环境模版快速创建")
+        .subcommand(Command::new("ask_ai").about("咨询AI命令，将反馈的命令输出在下面").short_flag('c').arg(arg!(<QUESTION> "问题"))).arg_required_else_help(true)
         .subcommand(
             Command::new("add_commit")
                 .about("本地添加和提交到本地仓库的快捷指令")
@@ -39,19 +49,26 @@ fn main() {
                 .arg(arg!(-w <COMMENT> "注释"))
                 .arg_required_else_help(true),
         ).subcommand(
-            Command::new("new")
-                .about("使用godot-tust默认模版创建一个工程")
-                .arg(arg!(<PROJECT_NAME> "project name"))
-                .arg_required_else_help(true),
-        ).subcommand(
-            Command::new("class")
-                .about("快速创建godot-tust的rust GDnative脚本")
-                .arg(arg!(<CLASS_NAME> "class name"))
-                .arg(arg!([NODE_NAME] "node name"))
-                .arg_required_else_help(true),
-        );
+        Command::new("new")
+            .about("使用godot-tust默认模版创建一个工程")
+            .arg(arg!(<PROJECT_NAME> "project name"))
+            .arg_required_else_help(true),
+    ).subcommand(
+        Command::new("class")
+            .about("快速创建godot-tust的rust GDnative脚本")
+            .arg(arg!(<CLASS_NAME> "class name"))
+            .arg(arg!([NODE_NAME] "node name"))
+            .arg_required_else_help(true),
+    );
     //dispact
     match comm.get_matches().subcommand() {
+        Some(("ask_ai", sub_matches)) => {
+            let mes = sub_matches
+                .get_one::<String>("QUESTION")
+                .expect("please input question");
+            println!("输入的问题是: {}", mes);
+            ai::send_message(mes.to_string()).await?;
+        }
         Some(("add_commit", sub_matches)) => {
             if send_cmd("git add .") == ExitStatus::from_raw(0) {
                 let mes = sub_matches
@@ -176,6 +193,8 @@ fn main() {
         }
         _ => unreachable!(),
     }
+
+    Ok(())
 }
 
 fn send_cmd(str: impl AsRef<OsStr>) -> ExitStatus {
