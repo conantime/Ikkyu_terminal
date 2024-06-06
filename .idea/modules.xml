@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/rust_command_tools.iml" filepath="$PROJECT_DIR$/.idea/rust_command_tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Ikkyu_terminal.iml" filepath="$PROJECT_DIR$/.idea/Ikkyu_terminal.iml" />
     </modules>
   </component>
 </project>

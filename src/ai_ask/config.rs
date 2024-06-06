@@ -1,4 +1,4 @@
-struct Config {
+pub struct Config {
     api_key: String,
     base_url: String,
 }

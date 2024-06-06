@@ -4,7 +4,7 @@ use rust_embed::RustEmbed;
 use std::{
     ffi::OsStr,
     io::{Read, Write},
-    os::windows::process::ExitStatusExt,
+    os::unix::process::ExitStatusExt, // 不同平台不同配置
     process::{Command as Cmd, ExitStatus},
 };
 
