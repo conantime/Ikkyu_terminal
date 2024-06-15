@@ -2,9 +2,10 @@
 import '~/css/theme/dark.css'
 import {Terminal, TerminalApi, TerminalAsk} from '~/index'
 import {Command, FailedFunc, Message, SuccessFunc} from "~/types";
-import {inject, ref} from "vue";
+import {ref} from "vue";
+import { invoke } from '@tauri-apps/api/tauri';
 
-const invoke =  window.__TAURI_INVOKE__
+
 const terminals = ref<any>([
   {
     show: true,
@@ -24,9 +25,10 @@ const terminals = ref<any>([
   }
 ])
 
-const onExecCmd = (key: string, command: Command, success: SuccessFunc, failed: FailedFunc, name: string) => {
+const onExecCmd = async (key: string, command: Command, success: SuccessFunc, failed: FailedFunc, name: string) => {
   if (key === 'ls') {
-    invoke('greet')
+    const res = await invoke<String>('greet',{name: 'ls'} )
+    success(res)
   } else if (key === 'list') {
     success("hello")
     TerminalApi.pushMessage(name, {
