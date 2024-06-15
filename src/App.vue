@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import Container from "./components/Container.vue";
+import {invoke} from '@tauri-apps/api/tauri'
+import {inject, provide} from "vue";
+
+const invoke = window.__TAURI__.invoke;
+
+provide('invoke', invoke)
 </script>
 
 <template>

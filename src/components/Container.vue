@@ -2,8 +2,9 @@
 import '~/css/theme/dark.css'
 import {Terminal, TerminalApi, TerminalAsk} from '~/index'
 import {Command, FailedFunc, Message, SuccessFunc} from "~/types";
-import {ref} from "vue";
+import {inject, ref} from "vue";
 
+const invoke =  window.__TAURI_INVOKE__
 const terminals = ref<any>([
   {
     show: true,
@@ -24,7 +25,9 @@ const terminals = ref<any>([
 ])
 
 const onExecCmd = (key: string, command: Command, success: SuccessFunc, failed: FailedFunc, name: string) => {
-  if (key === 'list') {
+  if (key === 'ls') {
+    invoke('greet')
+  } else if (key === 'list') {
     success("hello")
     TerminalApi.pushMessage(name, {
       class: "success",
@@ -218,18 +221,6 @@ const setCommand = () => {
 </script>
 <template>
   <div id="app">
-
-    <button @click="getCommand">get command</button>
-    <button @click="setCommand">set command</button>
-
-    <!--    <div style="width: 700px;height: 400px;margin-left: 150px;margin-top: 300px">-->
-    <!--      <terminal-->
-    <!--          name="test"-->
-    <!--          show-header-->
-    <!--          @exec-cmd="onExecCmd">-->
-    <!--      </terminal>-->
-    <!--    </div>-->
-
     <div v-for="(item,i) in terminals" :key="i">
       <terminal
           v-show="item.show"
