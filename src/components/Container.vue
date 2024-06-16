@@ -4,13 +4,14 @@ import {Terminal, TerminalApi, TerminalAsk} from '~/index'
 import {Command, FailedFunc, Message, SuccessFunc} from "~/types";
 import {ref} from "vue";
 import { invoke } from '@tauri-apps/api/tauri';
+import { Command as Cmd } from '@tauri-apps/api/shell';
 
 
 const terminals = ref<any>([
   {
     show: true,
-    name: 'terminal-test',
-    context: '/vue-web-terminal/test<br/>123/线上服/2',
+    name: 'terminal',
+    context: '/root',
     dragConf: {
       width: "60%",
       height: "50%",
@@ -21,14 +22,22 @@ const terminals = ref<any>([
       },
       pinned: false
     },
-    showHeader: true
+    showHeader: false
   }
 ])
 
 const onExecCmd = async (key: string, command: Command, success: SuccessFunc, failed: FailedFunc, name: string) => {
   if (key === 'ls') {
-    const res = await invoke<String>('greet',{name: 'ls'} )
-    success(res)
+    const command = await new Cmd('node')
+    command.on('close', data => {
+      console.log(`command finished with code ${data.code} and signal ${data.signal}`)
+    });
+    command.on('error', error => console.error(`command error: "${error}"`));
+    command.stdout.on('data', line => console.log(`command stdout: "${line}"`));
+    command.stderr.on('data', line => console.log(`command stderr: "${line}"`));
+
+    const child = await command.spawn();
+    success(child)
   } else if (key === 'list') {
     success("hello")
     TerminalApi.pushMessage(name, {

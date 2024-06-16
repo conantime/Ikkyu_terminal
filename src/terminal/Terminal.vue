@@ -72,7 +72,7 @@ const props = defineProps({
         content: "Current login time: " + new Date().toLocaleString()
       }, {
         type: 'normal',
-        content: "Welcome to vue web terminal! If you are using for the first time, you can use the <span class='t-cmd-key'>help</span> command to learn.Thanks for your star support: <a class='t-a' target='_blank' href='https://github.com/tzfun/vue-web-terminal'>https://github.com/tzfun/vue-web-terminal</a>"
+        content: 'AI Mode'
       }]
     }
   },
