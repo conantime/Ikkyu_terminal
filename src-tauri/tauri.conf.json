@@ -11,18 +11,7 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false,
-      "shell": {
-        "all": true,
-        "execute": true,
-        "sidecar": true,
-        "open": true,
-        "scope": {
-          "name": "run-git-commit",
-          "cmd": "git",
-          "args": ["commit", "-m", { "validator": "\\S+" }]
-        }
-      }
+      "all": false
     },
     "windows": [
       {
