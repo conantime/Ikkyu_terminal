@@ -2,37 +2,90 @@
 import '~/css/theme/dark.css'
 import {Terminal, TerminalApi, TerminalAsk} from '~/index'
 import {Command, FailedFunc, Message, SuccessFunc} from "~/types";
-import {ref} from "vue";
-import { Command as Cmd } from '@tauri-apps/plugin-shell';
+import {onBeforeMount, onMounted, ref} from "vue";
+import {Command as Cmd} from '@tauri-apps/plugin-shell';
+import {getPwd, removeQuotes} from "@/utils";
+import {invoke} from "@tauri-apps/api/core";
 
+let terminals: ref<Array<any>>
+let loading = ref(false)
 
-
-const terminals = ref<any>([
-  {
-    show: true,
-    name: 'terminal',
-    context: '/root',
-    dragConf: {
-      width: "60%",
-      height: "50%",
-      zIndex: 100,
-      init: {
-        x: 100,
-        y: 70
+getPwd().then((pwdPath) => {
+  console.log(pwdPath, typeof pwdPath)
+  terminals = ref([
+    {
+      show: true,
+      name: 'terminal',
+      context: removeQuotes(pwdPath),
+      dragConf: {
+        width: "60%",
+        height: "50%",
+        zIndex: 100,
+        init: {
+          x: 100,
+          y: 70
+        },
+        pinned: true
       },
-      pinned: true
-    },
-    showHeader: false
-  }
-])
+      showHeader: false
+    }
+  ])
+  console.log('init')
+  loading.value = false
+  console.log(terminals.value, 'terminals')
+})
+
 
 const onExecCmd = async (key: string, command: Command, success: SuccessFunc, failed: FailedFunc, name: string) => {
-    let result = await Cmd.create('exec-sh', [
-      '-c',
-      key,
-    ]).execute();
-    console.log(result.stdout, 'res');
-    success(result.stdout)
+  console.log(command)
+  if (terminals.value[0].sshMode) {
+    const r = await invoke("execute_ssh_command", {
+      command: command
+    })
+    console.log(r, 'execute_r')
+    success(r)
+    return
+  }
+  if (key.trim().startsWith('ssh')) {
+    const r = await invoke("ssh", {
+      ipWithPort: '124.70.15.11:22',
+      username: "root",
+      password: "wzh1230.",
+      localFilePath: "",
+      targetFilePath: "/",
+      command: "pwd"
+    });
+    if (r) {
+      terminals.value = [
+        {
+          show: true,
+          name: 'terminal',
+          context: r,
+          dragConf: {
+            width: "60%",
+            height: "50%",
+            zIndex: 100,
+            init: {
+              x: 100,
+              y: 70
+            },
+            pinned: true
+          },
+          showHeader: false,
+          sshMode: true
+        }
+      ]
+    }
+    success('')
+    return
+  }
+  console.log(name)
+  let result = await Cmd.create('exec-sh', [
+    '-c',
+    key,
+  ]).execute();
+  console.log(result.stdout, 'res');
+  success(result.stdout)
 }
 
 const onActive = (name: string) => {
@@ -65,7 +118,7 @@ const setCommand = () => {
 
 </script>
 <template>
-  <div id="app">
+  <div id="app_cmd">
     <div v-for="(item,i) in terminals" :key="i">
       <terminal
           v-show="item.show"
@@ -96,7 +149,7 @@ const setCommand = () => {
 </template>
 
 <style>
-body, html, #app {
+body, html, #app_cmd {
   margin: 0;
   padding: 0;
   width: 100%;
