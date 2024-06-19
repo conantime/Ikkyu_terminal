@@ -38,6 +38,32 @@ getPwd().then((pwdPath) => {
 
 const onExecCmd = async (key: string, command: Command, success: SuccessFunc, failed: FailedFunc, name: string) => {
   console.log(command)
+  if (key === 'aimode') {
+    let content = ""
+    "You are an expert at using shell commands. I need you to provide a response in the format "`{"
+    command
+    ": "your_shell_command_here"}`
+    ". "
+    "" + "linux" + ""
+    " Only provide a single executable line of shell code as the value for the "
+    command
+    " key. Never output any text outside the JSON structure. The command will be directly executed in a shell. For example, if I ask to display the message 'Hello, World!', you should respond with ```json\n{"
+    command
+    ": "
+    'echo  Hello, World!'
+    "}```. Between [], these are the last 1500 tokens from the previous command's output, you can use them as context: ["
+    "" + command + ""
+    "], if it's None, don't take it into consideration."
+    ""
+
+    const r = await invoke("aimode", {
+      command: content
+    })
+    console.log(r, 'aimode')
+    success(r)
+
+    return
+  }
   if (terminals.value[0].sshMode) {
     const r = await invoke("execute_ssh_command", {
       command: command
