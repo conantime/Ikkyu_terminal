@@ -2,13 +2,12 @@
 #![allow(unused_assignments)] // 禁用未使用赋值的警告
 
 use std::env::current_dir;
-use std::fmt::format;
-use ssh2::{Channel, Session};
-use std::path::Path;
-use std::io::{Read, Write};
-use std::ptr::null;
+use ssh2::{Session};
+use std::io::{Read};
 use tauri::Manager;
 use std::sync::Mutex;
+use crate::ai;
+use ai::send_message;
 
 static SSH_SESSION: Mutex<Option<Session>> = Mutex::new(None);
 
@@ -60,6 +59,12 @@ fn publish(ip_with_port: &str, username: &str, password: &str, local_file_path: 
         }
     }
     response_txt
+}
+
+#[tauri::command]
+pub async fn ai_mod(command: String) -> String {
+    let res = send_message(command).await.unwrap();
+    res
 }
 
 #[tauri::command]
