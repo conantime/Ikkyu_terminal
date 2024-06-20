@@ -7,29 +7,29 @@ import {Command as Cmd} from '@tauri-apps/plugin-shell';
 import {getPwd, removeQuotes} from "@/utils";
 import {invoke} from "@tauri-apps/api/core";
 
-let terminals: ref<Array<any>>
+let terminals: ref<Array<any>> = ref([
+  {
+    show: true,
+    name: 'terminal',
+    context: '/root',
+    dragConf: {
+      width: "60%",
+      height: "50%",
+      zIndex: 100,
+      init: {
+        x: 100,
+        y: 70
+      },
+      pinned: false
+    },
+    showHeader: true
+  },
+])
 let loading = ref(false)
 
 getPwd().then((pwdPath) => {
   console.log(pwdPath, typeof pwdPath)
-  terminals = ref([
-    {
-      show: true,
-      name: 'terminal',
-      context: removeQuotes(pwdPath),
-      dragConf: {
-        width: "60%",
-        height: "50%",
-        zIndex: 100,
-        init: {
-          x: 100,
-          y: 70
-        },
-        pinned: true
-      },
-      showHeader: false
-    }
-  ])
+  terminals.value[0].context = removeQuotes(pwdPath)
   console.log('init')
   loading.value = false
   console.log(terminals.value, 'terminals')
@@ -52,7 +52,7 @@ const onExecCmd = async (key: string, command: Command, success: SuccessFunc, fa
       command: contents
     })
     console.log(r, 'ai_mod')
-    success(r)
+    failed(r)
 
     return
   }
@@ -134,6 +134,32 @@ const setCommand = () => {
   TerminalApi.setCommand(terminals.value[0].name, "The custom command -a xxx")
 }
 
+const aiSearch = async (allCommand, command, cb) => {
+  let contents = 'You are an expert at using shell commands. I need you to provide a response in the format ' +
+      '{"command": "your_shell_command_here"}. ' + "linux" +
+      'Only provide a single executable line of shell code as the value for the "command" key. Never output any text outside the JSON structure. ' +
+      'The command will be directly executed in a shell. For example, if I ask to display the message "Hello, World!", you should respond with' +
+      'json\n{"command": "echo Hello, World!"}. ' +
+      'Between [], these are the last 1500 tokens from the previous command\'s output, you can use them as context: [' + String(command).replace('aimode', "")
+      + '], if it\'s None, don\'t take it into consideration.'
+
+
+  const r = await invoke("ai_mod", {
+    command: contents
+  })
+  console.log(r, 'ai_mod')
+
+  const cmdParams = [{
+    cmd: JSON.parse(r).command
+  }]
+
+  cb({
+    key: command,
+    title: 'ai_search',
+    example: cmdParams
+  })
+}
+
 </script>
 <template>
   <div id="app_cmd">
@@ -148,6 +174,7 @@ const setCommand = () => {
           :drag-conf="item.dragConf"
           :show-header="item.showHeader"
           :push-message-before="pushMessageBefore"
+          :searchHandler="aiSearch"
           @exec-cmd="onExecCmd"
           @on-active="onActive"
           @on-inactive="onInactive"

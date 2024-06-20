@@ -28,6 +28,9 @@ defineExpose({
       <div v-for="(it,idx) in result.item.example" :key="idx" class="text">
         <div v-if="result.item.example.length === 1">
           <span>Example: <code>{{ it.cmd }}</code> {{ it.des }}</span>
+          <div class="e-cmd-enter">
+            <div>ctrl + e to execute</div>
+          </div>
         </div>
         <div v-else>
           <div class="t-cmd-help-eg">

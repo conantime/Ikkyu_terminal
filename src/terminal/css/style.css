@@ -339,6 +339,10 @@
     box-shadow: var(--t-cmd-help-box-shadow);
 }
 
+.e-cmd-enter {
+    margin-top: 8px;
+}
+
 .t-cmd-help code {
     border: none;
     padding: 2px 5px 2px 5px;

@@ -221,6 +221,7 @@ const searchCmdResult = reactive({
   defaultBoxRect: null,
   item: <Command>null
 })
+// 获取所有指令
 const allCommandStore = ref<Command[]>([])
 const fullscreenState = ref<boolean>(false)
 const inputBoxParam = reactive({
@@ -334,11 +335,17 @@ onMounted(() => {
     if (isActive.value) {
       try {
         let key = event.key.toLowerCase()
+        console.log(key, event.ctrlKey)
+        if (key === 'e' && (event.metaKey || event.ctrlKey)) {
+          command.value = searchCmdResult.item.example[0].cmd
+          return
+        }
         if (key.match(/c|control|meta/g)) {
           if (event.metaKey || event.ctrlKey) {
             return
           }
           if (key === 'c' && (event.metaKey || event.ctrlKey)) {
+            console.log('shutdown')
             return
           }
         }
@@ -813,6 +820,7 @@ const _printHelp = (regExp: RegExp, srcStr: string) => {
   })
 }
 
+// 执行命令
 const _execute = () => {
   _resetSearchKey()
   _saveCurCommand();
@@ -885,7 +893,7 @@ const _execute = () => {
           case 'help': {
             let reg = `^${split.length > 1 && _nonEmpty(split[1]) ? split[1] : "*"}$`
             reg = reg.replace(/\*/g, ".*")
-            _printHelp(new RegExp(reg, "i"), split[1])
+
             break;
           }
           case 'clear':
