@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, PropType, reactive, ref, watch} from "vue";
+import _ from 'lodash';
 import {
   AskConfig,
   Command,
@@ -667,7 +668,7 @@ const _searchCmd = (key?: string) => {
 
   //  用户自定义搜索实现
   if (props.searchHandler) {
-    console.log(key, typeof key)
+    console.log(key, '当前命令')
     props.searchHandler(allCommandStore.value, key, (cmd: Command) => {
       searchCmdResult.item = cmd
       _jumpToBottom()
@@ -1174,7 +1175,7 @@ const _calculateStringWidth = (str: string): number => {
   return width
 }
 
-const _onInput = (e: InputEvent) => {
+const _onInput = _.debounce((e: InputEvent) => {
   if (props.inputFilter) {
     let value = (e.target as HTMLInputElement).value
     let newStr = props.inputFilter(e.data, value, e)
@@ -1202,7 +1203,7 @@ const _onInput = (e: InputEvent) => {
     searchCmdResult.show = true
     searchCmdResult.defaultBoxRect = null
   }
-}
+}, 1000)
 
 const _checkInputCursor = () => {
   let eIn = terminalCmdInputRef.value
