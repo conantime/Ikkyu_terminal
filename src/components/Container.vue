@@ -51,8 +51,8 @@ const onExecCmd = async (key: string, command: Command, success: SuccessFunc, fa
     const r = await invoke("ai_mod", {
       command: contents
     })
-    console.log(r, 'ai_mod')
-    failed(r)
+    console.log(r, 'ai_m od')
+    success(r)
 
     return
   }
@@ -135,12 +135,13 @@ const setCommand = () => {
 }
 
 const aiSearch = async (allCommand, command, cb) => {
+  console.log(command, typeof command)
   let contents = 'You are an expert at using shell commands. I need you to provide a response in the format ' +
       '{"command": "your_shell_command_here"}. ' + "linux" +
       'Only provide a single executable line of shell code as the value for the "command" key. Never output any text outside the JSON structure. ' +
       'The command will be directly executed in a shell. For example, if I ask to display the message "Hello, World!", you should respond with' +
       'json\n{"command": "echo Hello, World!"}. ' +
-      'Between [], these are the last 1500 tokens from the previous command\'s output, you can use them as context: [' + String(command).replace('aimode', "")
+      'Between [], these are the last 1500 tokens from the previous command\'s output, you can use them as context: [' + command
       + '], if it\'s None, don\'t take it into consideration.'
 
 

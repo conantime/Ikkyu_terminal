@@ -18,7 +18,8 @@ struct Message {
 #[derive(Serialize)]
 struct RequestBody {
     model: String,
-    messages: Vec<Message>,
+    prompt: String,
+    stream: bool
 }
 
 #[derive(Deserialize)]
@@ -31,40 +32,50 @@ struct ResponseMessage {
     content: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct ResponseBody {
-    choices: Vec<Choice>,
+    response: String,
+    model: String,
+    done: bool,
+    done_reason: String,
 }
 
 
 pub async fn send_message(content: String) -> Result<String, Box<dyn std::error::Error>> {
     println!("发送请求中 {}", &content);
 
-    let messages = vec![
-        Message {
-            role: "system".to_string(),
-            content: "You are an AI assistant who knows everything.".to_string(),
-        },
-        Message {
-            role: "user".to_string(),
-            content
-        },
-    ];
+    // let messages = vec![
+    //     Message {
+    //         role: "system".to_string(),
+    //         content: "You are an AI assistant who knows everything.".to_string(),
+    //     },
+    //     Message {
+    //         role: "user".to_string(),
+    //         content
+    //     },
+    // ];
 
     let request_body = RequestBody {
-        model: "gpt-3.5-turbo".to_string(),
-        messages,
+        model: "qwen:7b".to_string(),
+        prompt: content,
+        stream: false
     };
 
     let client = reqwest::Client::new();
 
-    let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    headers.insert(AUTHORIZATION, HeaderValue::from_str(&format!("Bearer {}", "sk-0J6lwoWGDs9koD4MJegiFwKq5dgdePeJmgupjP7eMTIggNhD"))?);
+    // let mut headers = HeaderMap::new();
+    // headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    // headers.insert(AUTHORIZATION, HeaderValue::from_str(&format!("Bearer {}", "sk-0J6lwoWGDs9koD4MJegiFwKq5dgdePeJmgupjP7eMTIggNhD"))?);
+
+    // let response = client
+    //     .post("https://api.chatanywhere.tech/v1/chat/completions")
+    //     .headers(headers)
+    //     .json(&request_body)
+    //     .send()
+    //     .await?;
 
     let response = client
-        .post("https://api.chatanywhere.tech/v1/chat/completions")
-        .headers(headers)
+        .post("http://127.0.0.1:11434/api/generate")
         .json(&request_body)
         .send()
         .await?;
@@ -73,7 +84,8 @@ pub async fn send_message(content: String) -> Result<String, Box<dyn std::error:
 
     if response.status().is_success() {
         let response_body: ResponseBody = response.json().await?;
-        let mes = &response_body.choices[0].message.content;
+        println!("{:?}", response_body);
+        let mes = &response_body.response;
         primary_command = handle_response(mes)?;
 
         // let mut ctx: ClipboardContext = clipboard::ClipboardProvider::new().unwrap();

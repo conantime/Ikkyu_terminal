@@ -63,8 +63,16 @@ fn publish(ip_with_port: &str, username: &str, password: &str, local_file_path: 
 
 #[tauri::command]
 pub async fn ai_mod(command: String) -> String {
-    let res = send_message(command).await.unwrap();
-    res
+    let res = send_message(command).await;
+    match res {
+        Ok(value) => {
+            value
+        },
+        Err(e) => {
+            println!("e:: {:?}", e);
+            e.to_string()
+        }
+    }
 }
 
 #[tauri::command]

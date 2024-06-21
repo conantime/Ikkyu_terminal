@@ -660,7 +660,6 @@ const _calculatePromptLen = () => {
 const _resetSearchKey = () => {
   searchCmdResult.item = null
 }
-
 const _searchCmd = (key?: string) => {
   if (!props.autoHelp) {
     return
@@ -668,6 +667,7 @@ const _searchCmd = (key?: string) => {
 
   //  用户自定义搜索实现
   if (props.searchHandler) {
+    console.log(key, typeof key)
     props.searchHandler(allCommandStore.value, key, (cmd: Command) => {
       searchCmdResult.item = cmd
       _jumpToBottom()
@@ -1187,7 +1187,7 @@ const _onInput = (e: InputEvent) => {
   if (_isEmpty(command.value)) {
     _resetSearchKey();
   } else {
-    _searchCmd()
+    _searchCmd(command.value)
   }
 
   _checkInputCursor()
