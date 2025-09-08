@@ -1,5 +1,5 @@
 # Ikkyu terminal
-通过rust的clap和请求API接口，实现的一个简单只能命令行工具
+通过rust的clap和请求API接口，实现的一个简单智能命令行工具
 
 使用方法
 1. 下载代码 (rust开发环境 和 git工具安装)
